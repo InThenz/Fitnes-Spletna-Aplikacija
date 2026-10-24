@@ -1,0 +1,11 @@
+
+# MySQL podatkovne datoteke
+/mysql/
+/mysql-prazna-backup/
+
+# Lokalne nastavitve in skrivnosti
+.env
+
+# Sistemske datoteke
+.DS_Store
+Thumbs.db
