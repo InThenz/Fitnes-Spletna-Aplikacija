@@ -17,9 +17,12 @@ if ($datum === "" || !is_numeric($teza) || $teza < 0) {
 
 $opis = trim($_POST["opis"] ?? "");
 
-// Začasni ID-ji, dokler ne izdelava prijave in izbire vaj.
-$id_uporabnik = 1;
-$id_vaja = 1;
+$id_uporabnik = 1; // Začasni testni uporabnik
+$id_vaja = filter_input(INPUT_POST, "id_vaja", FILTER_VALIDATE_INT);
+
+if ($id_vaja === false || $id_vaja === null || $id_vaja <= 0) {
+    exit("Neveljavna vaja.");
+}
 
 $sql = "INSERT INTO zapis_vaje
         (id_uporabnik, id_vaja, datum, teza_kg, opis)
