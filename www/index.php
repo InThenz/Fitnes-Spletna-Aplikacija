@@ -10,6 +10,15 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute();
 
 $zapisi = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$grafZapisi = array_reverse($zapisi);
+
+$datumi = array_column($grafZapisi, "datum");
+
+$teze = array_map(
+    "floatval",
+    array_column($grafZapisi, "teza_kg")
+);
 ?>
 
 <!DOCTYPE html>
@@ -93,6 +102,12 @@ $zapisi = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </tbody>
 </table>
 
+<h4 class="mt-4">Graf napredka</h4>
+
+<div class="card p-3 mb-4">
+    <canvas id="grafNapredka"></canvas>
+</div>
+
 
 </div>
                     </div>
@@ -103,5 +118,50 @@ $zapisi = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+
+<script>
+    const datumi = <?= json_encode($datumi, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    const teze = <?= json_encode($teze) ?>;
+
+    const ctx = document.getElementById("grafNapredka");
+
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: datumi,
+            datasets: [{
+                label: "Bench Press (kg)",
+                data: teze,
+                borderColor: "#0d6efd",
+                backgroundColor: "rgba(13, 110, 253, 0.1)",
+                borderWidth: 2,
+                tension: 0.3,
+                pointRadius: 5,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: "Teža (kg)"
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: "Datum treninga"
+                    }
+                }
+            }
+        }
+    });
+</script>
+
 </body>
 </html>
