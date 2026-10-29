@@ -28,6 +28,14 @@ $zapisi = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </header>
 
     <main>
+
+    <?php if (isset($_GET["shranjeno"])): ?>
+    <div class="alert alert-success" role="alert">
+        Trening je bil uspešno shranjen!
+    </div>
+<?php endif; ?>
+
+
         <section>
             <h2>Moje vaje</h2>
             <div class="accordion" id="seznamVaj">
@@ -37,7 +45,8 @@ $zapisi = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </h3>
 
                     <div id="benchPress"
-                        class="accordion-collapse collapse"data-bs-parent="#seznamVaj">
+                        class="accordion-collapse collapse <?= isset($_GET['shranjeno']) ? 'show' : '' ?>"
+                        data-bs-parent="#seznamVaj">
                         
                         <div class="accordion-body">
                             <form action="shrani-vajo.php" method="POST">

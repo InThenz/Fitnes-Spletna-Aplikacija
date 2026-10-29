@@ -1,4 +1,3 @@
-
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
@@ -35,4 +34,7 @@ $stmt->execute([
     $opis
 ]);
 
-echo "Trening je uspešno shranjen!";
+
+header("Location: index.php?shranjeno=1");
+exit;
+
