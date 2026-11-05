@@ -240,6 +240,56 @@ $grafTeze = array_map(
                             <td><?= htmlspecialchars($zapis["opis"] ?? "") ?></td>
                             
                             <td>
+                                
+                            <button type="button"
+                                    class="btn btn-outline-primary btn-sm mb-2"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#uredi<?= (int)$zapis['id_zapis'] ?>">
+                                Uredi
+                            </button>
+
+                            <div class="collapse mt-2 mb-3"
+                                id="uredi<?= (int)$zapis['id_zapis'] ?>">
+
+                                <form action="uredi-zapis.php" method="POST">
+
+                                    <input type="hidden"
+                                        name="id_zapis"
+                                        value="<?= (int)$zapis['id_zapis'] ?>">
+
+                                    <input type="hidden"
+                                        name="id_vaja"
+                                        value="<?= (int)$vaja['id_vaja'] ?>">
+
+                                    <label class="form-label">Datum</label>
+                                    <input type="date"
+                                        name="datum"
+                                        class="form-control mb-2"
+                                        value="<?= htmlspecialchars($zapis['datum']) ?>"
+                                        required>
+
+                                    <label class="form-label">Teža (kg)</label>
+                                    <input type="number"
+                                        name="teza"
+                                        class="form-control mb-2"
+                                        min="0"
+                                        step="0.5"
+                                        value="<?= htmlspecialchars($zapis['teza_kg']) ?>"
+                                        required>
+
+                                    <label class="form-label">Opis</label>
+                                    <textarea name="opis"
+                                            class="form-control mb-2"
+                                            rows="2"><?= htmlspecialchars($zapis['opis'] ?? '') ?></textarea>
+
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        Shrani spremembe
+                                    </button>
+
+                                </form>
+
+                            </div>
+
                                 <form action="izbrisi-zapis.php" method="POST">
                                     <input type="hidden"
                                         name="id_zapis"
