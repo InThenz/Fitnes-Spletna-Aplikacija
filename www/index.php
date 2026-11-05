@@ -1,7 +1,9 @@
 <?php
+session_start();
+
 require_once "db.php";
 
-// Pridobimo vse vaje iz podatkovne baze
+// SELECT vse iz VAJA
 $stmtVaje = $pdo->query("SELECT * FROM vaja ORDER BY ime_vaje");
 $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
 
@@ -23,15 +25,22 @@ $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
         <h1 class="text-primary text-center mt-4">ZAPISNIK</h1>
     </header>
 
-    <main>
-
-
-        <?php if (isset($_GET["shranjeno"])): ?>
+    <main class="container mt-4">
+        <?php if (!empty($_SESSION["uspesno_shranjeno"])): ?>
             <div class="alert alert-success" role="alert">
                 Trening je bil uspešno shranjen!
             </div>
+
+            <?php unset($_SESSION["uspesno_shranjeno"]); ?>
         <?php endif; ?>
 
+        <?php if (!empty($_SESSION["uspesno_izbrisano"])): ?>
+            <div class="alert alert-success" role="alert">
+                Trening je bil uspešno izbrisan!
+            </div>
+
+            <?php unset($_SESSION["uspesno_izbrisano"]); ?>
+        <?php endif; ?>
 
         <?php if (isset($_GET["dodano"])): ?>
             <div class="alert alert-success" role="alert">
@@ -40,15 +49,11 @@ $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
         <?php endif; ?>
 
 
-
         <section>
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2>Moje vaje</h2>
 
-                <button class="btn btn-primary"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#dodajVajo">
+                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#dodajVajo">
                     + Dodaj vajo
                 </button>
             </div>
@@ -118,22 +123,17 @@ $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
     <?php foreach ($vaje as $vaja): ?>
 
         <?php
-$stmtZapisi = $pdo->prepare(
-    "SELECT datum, teza_kg, opis
-     FROM zapis_vaje
-     WHERE id_uporabnik = ? AND id_vaja = ?
-     ORDER BY datum DESC, id_zapis DESC"
+        $stmtZapisi = $pdo->prepare(
+            "SELECT id_zapis, datum, teza_kg, opis
+            FROM zapis_vaje
+            WHERE id_uporabnik = ? AND id_vaja = ?
+            ORDER BY datum DESC, id_zapis DESC"
 );
 
 $stmtZapisi->execute([1, $vaja["id_vaja"]]);
-
 $zgodovina = $stmtZapisi->fetchAll(PDO::FETCH_ASSOC);
-
-
 $grafZgodovina = array_reverse($zgodovina);
-
 $grafDatumi = array_column($grafZgodovina, "datum");
-
 $grafTeze = array_map(
     "floatval",
     array_column($grafZgodovina, "teza_kg")
@@ -141,147 +141,167 @@ $grafTeze = array_map(
 
 ?>
 
-        <div class="accordion-item">
+                <div class="accordion-item">
 
-            <h3 class="accordion-header">
-                <button class="accordion-button collapsed"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#vaja<?= (int)$vaja['id_vaja'] ?>">
+                    <h3 class="accordion-header">
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#vaja<?= (int)$vaja['id_vaja'] ?>">
 
-                    <?= htmlspecialchars($vaja["ime_vaje"]) ?>
+                            <?= htmlspecialchars($vaja["ime_vaje"]) ?>
 
+                        </button>
+                    </h3>
+
+                    
+                    <div id="vaja<?= (int)$vaja['id_vaja'] ?>"
+                        class="accordion-collapse collapse <?= (isset($_GET['id_vaja']) && (int)$_GET['id_vaja'] === (int)$vaja['id_vaja']) ? 'show' : '' ?>"
+                        data-bs-parent="#dinamicneVaje">
+
+
+                        
+        <div class="accordion-body">
+
+            <p>
+                <strong>Mišična skupina:</strong>
+                <?= htmlspecialchars($vaja["misicna_skupina"]) ?>
+            </p>
+
+            <p>
+                <?= htmlspecialchars($vaja["opis_vaje"] ?? "") ?>
+            </p>
+
+            <h5 class="mt-4">Dodaj trening</h5>
+
+            <form action="shrani-vajo.php" method="POST">
+
+                <input type="hidden"
+                    name="id_vaja"
+                    value="<?= (int)$vaja['id_vaja'] ?>">
+
+                <div class="mb-3">
+                    <label class="form-label">Datum treninga</label>
+                    <input type="date"
+                        name="datum"
+                        class="form-control"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Teža (kg)</label>
+                    <input type="number"
+                        name="teza"
+                        class="form-control"
+                        min="0"
+                        step="0.5"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Opis (neobvezno)</label>
+                    <textarea name="opis"
+                            class="form-control"
+                            rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Shrani trening
                 </button>
-            </h3>
 
-            <div id="vaja<?= (int)$vaja['id_vaja'] ?>"
-                 class="accordion-collapse collapse"
-                 data-bs-parent="#dinamicneVaje">
+            </form>
 
-                
-<div class="accordion-body">
+            
+        <h5 class="mt-4">Zgodovina treningov</h5>
 
-    <p>
-        <strong>Mišična skupina:</strong>
-        <?= htmlspecialchars($vaja["misicna_skupina"]) ?>
-    </p>
+        <?php if (empty($zgodovina)): ?>
 
-    <p>
-        <?= htmlspecialchars($vaja["opis_vaje"] ?? "") ?>
-    </p>
+            <p class="text-muted">
+                Za to vajo še ni shranjenih treningov.
+            </p>
 
-    <h5 class="mt-4">Dodaj trening</h5>
+        <?php else: ?>
 
-    <form action="shrani-vajo.php" method="POST">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Teža (kg)</th>
+                        <th>Opis</th>
+                        <th>Dejanje</th>
+                    </tr>
+                </thead>
 
-        <input type="hidden"
-               name="id_vaja"
-               value="<?= (int)$vaja['id_vaja'] ?>">
+                <tbody>
+                    <?php foreach ($zgodovina as $zapis): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($zapis["datum"]) ?></td>
+                            <td><?= htmlspecialchars($zapis["teza_kg"]) ?> kg</td>
+                            <td><?= htmlspecialchars($zapis["opis"] ?? "") ?></td>
+                            
+                            <td>
+                                <form action="izbrisi-zapis.php" method="POST">
+                                    <input type="hidden"
+                                        name="id_zapis"
+                                        value="<?= (int)$zapis['id_zapis'] ?>">
 
-        <div class="mb-3">
-            <label class="form-label">Datum treninga</label>
-            <input type="date"
-                   name="datum"
-                   class="form-control"
-                   required>
-        </div>
+                                    <input type="hidden"
+                                        name="id_vaja"
+                                        value="<?= (int)$vaja['id_vaja'] ?>">
 
-        <div class="mb-3">
-            <label class="form-label">Teža (kg)</label>
-            <input type="number"
-                   name="teza"
-                   class="form-control"
-                   min="0"
-                   step="0.5"
-                   required>
-        </div>
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        Izbriši
+                                    </button>
+                                </form>
+                            </td>
 
-        <div class="mb-3">
-            <label class="form-label">Opis (neobvezno)</label>
-            <textarea name="opis"
-                      class="form-control"
-                      rows="3"></textarea>
-        </div>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
 
-        <button type="submit" class="btn btn-primary">
-            Shrani trening
-        </button>
+        <?php endif; ?>
 
-    </form>
+        <?php if (!empty($zgodovina)): ?>
 
-    
-<h5 class="mt-4">Zgodovina treningov</h5>
+            <h5 class="mt-4">Graf napredka</h5>
 
-<?php if (empty($zgodovina)): ?>
+            <div class="card p-3 mb-4">
+                <canvas id="grafVaja<?= (int)$vaja['id_vaja'] ?>"></canvas>
+            </div>
 
-    <p class="text-muted">
-        Za to vajo še ni shranjenih treningov.
-    </p>
-
-<?php else: ?>
-
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Datum</th>
-                <th>Teža (kg)</th>
-                <th>Opis</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            <?php foreach ($zgodovina as $zapis): ?>
-                <tr>
-                    <td><?= htmlspecialchars($zapis["datum"]) ?></td>
-                    <td><?= htmlspecialchars($zapis["teza_kg"]) ?> kg</td>
-                    <td><?= htmlspecialchars($zapis["opis"] ?? "") ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-
-<?php endif; ?>
-
-<?php if (!empty($zgodovina)): ?>
-
-    <h5 class="mt-4">Graf napredka</h5>
-
-    <div class="card p-3 mb-4">
-        <canvas id="grafVaja<?= (int)$vaja['id_vaja'] ?>"></canvas>
-    </div>
-
-    <script>
-        new Chart(
-            document.getElementById("grafVaja<?= (int)$vaja['id_vaja'] ?>"),
-            {
-                type: "line",
-                data: {
-                    labels: <?= json_encode($grafDatumi) ?>,
-                    datasets: [{
-                        label: "Teža (kg)",
-                        data: <?= json_encode($grafTeze) ?>,
-                        borderColor: "#0d6efd",
-                        backgroundColor: "rgba(13, 110, 253, 0.1)",
-                        borderWidth: 2,
-                        tension: 0.3,
-                        pointRadius: 5,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: false
+            <script>
+                new Chart(
+                    document.getElementById("grafVaja<?= (int)$vaja['id_vaja'] ?>"),
+                    {
+                        type: "line",
+                        data: {
+                            labels: <?= json_encode($grafDatumi) ?>,
+                            datasets: [{
+                                label: "Teža (kg)",
+                                data: <?= json_encode($grafTeze) ?>,
+                                borderColor: "#0d6efd",
+                                backgroundColor: "rgba(13, 110, 253, 0.1)",
+                                borderWidth: 2,
+                                tension: 0.3,
+                                pointRadius: 5,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: false
+                                }
+                            }
                         }
                     }
-                }
-            }
-        );
-    </script>
+                );
+            </script>
 
-<?php endif; ?>
-</div>
+        <?php endif; ?>
+        </div>
 
 
             </div>
@@ -297,46 +317,7 @@ $grafTeze = array_map(
 
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    
-<script>
-    const datumi = <?= json_encode($datumi, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
-    const teze = <?= json_encode($teze) ?>;
 
-    new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: datumi,
-            datasets: [{
-                label: "Bench Press (kg)",
-                data: teze,
-                borderColor: "#0d6efd",
-                backgroundColor: "rgba(13, 110, 253, 0.1)",
-                borderWidth: 2,
-                tension: 0.3,
-                pointRadius: 5,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    title: {
-                        display: true,
-                        text: "Teža (kg)"
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: "Datum treninga"
-                    }
-                }
-            }
-        }
-    });
-</script>
 
 </body>
 </html>

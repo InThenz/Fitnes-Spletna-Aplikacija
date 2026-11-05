@@ -1,6 +1,6 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+
+session_start();
 
 require_once "db.php";
 
@@ -17,7 +17,7 @@ if ($datum === "" || !is_numeric($teza) || $teza < 0) {
 
 $opis = trim($_POST["opis"] ?? "");
 
-$id_uporabnik = 1; // Začasni testni uporabnik
+$id_uporabnik = 1; // Testni uporabnik - nimam še prijavnega sistema
 $id_vaja = filter_input(INPUT_POST, "id_vaja", FILTER_VALIDATE_INT);
 
 if ($id_vaja === false || $id_vaja === null || $id_vaja <= 0) {
@@ -37,7 +37,8 @@ $stmt->execute([
     $opis
 ]);
 
+$_SESSION["uspesno_shranjeno"] = true;
 
-header("Location: index.php?shranjeno=1");
+header("Location: index.php?shranjeno=1&id_vaja=" . $id_vaja); //pošlje nazaj na index.php in naredi, da je vse odprto.
 exit;
 

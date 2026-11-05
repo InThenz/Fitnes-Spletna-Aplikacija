@@ -1,22 +1,22 @@
 <?php
 require_once "db.php";
 
-// Preverimo, ali so podatki poslani iz obrazca
+// POST metoda preveri podatke poslane v obrazcu.
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     exit("Neveljavna zahteva.");
 }
 
-// Pridobimo podatke iz obrazca
+// Dobim podatke in jih shranim v custom vrednosti
 $ime = trim($_POST["ime_vaje"] ?? "");
 $skupina = trim($_POST["misicna_skupina"] ?? "");
 $opis = trim($_POST["opis_vaje"] ?? "");
 
-// Preverimo obvezna polja
+// Preverim obvezna polja
 if ($ime === "" || $skupina === "") {
     exit("Ime vaje in mišična skupina sta obvezna.");
 }
 
-// Pripravimo SQL poizvedbo
+// INSERT INTO SQL v database
 $sql = "INSERT INTO vaja
         (ime_vaje, misicna_skupina, opis_vaje)
         VALUES (?, ?, ?)";
@@ -24,6 +24,6 @@ $sql = "INSERT INTO vaja
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$ime, $skupina, $opis]);
 
-// Vrnemo uporabnika na glavno stran
+// Vrnitev na glavno stran, da nisem na blank page.
 header("Location: index.php?dodano=1");
 exit;
