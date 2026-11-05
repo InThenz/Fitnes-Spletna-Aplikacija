@@ -249,7 +249,10 @@ $grafTeze = array_map(
                                         name="id_vaja"
                                         value="<?= (int)$vaja['id_vaja'] ?>">
 
-                                    <button type="submit" class="btn btn-danger btn-sm">
+                    <!-- Funkcija return vsebuje vso kodo, da te še enkrat vpraša če želiš potrditi kar počneš. -->
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Ali res želiš izbrisati ta trening?');">
                                         Izbriši
                                     </button>
                                 </form>
