@@ -48,6 +48,15 @@ $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
             </div>
         <?php endif; ?>
 
+        <?php if (!empty($_SESSION["uspesno_urejeno"])): ?>
+            <div class="alert alert-success" role="alert">
+                Trening je bil uspešno posodobljen!
+            </div>
+
+            <?php unset($_SESSION["uspesno_urejeno"]); ?>
+        <?php endif; ?>
+
+
 
         <section>
             <div class="d-flex justify-content-between align-items-center mb-3">
