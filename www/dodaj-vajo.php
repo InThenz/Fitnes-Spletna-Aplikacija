@@ -16,13 +16,15 @@ if ($ime === "" || $skupina === "") {
     exit("Ime vaje in mišična skupina sta obvezna.");
 }
 
+$id_uporabnik = 1;
+
 // INSERT INTO SQL v database
 $sql = "INSERT INTO vaja
-        (ime_vaje, misicna_skupina, opis_vaje)
-        VALUES (?, ?, ?)";
+        (ime_vaje, misicna_skupina, opis_vaje, id_uporabnik)
+        VALUES (?, ?, ?, ?)";
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute([$ime, $skupina, $opis]);
+$stmt->execute([$ime, $skupina, $opis, $id_uporabnik]);
 
 // Vrnitev na glavno stran, da nisem na blank page.
 header("Location: index.php?dodano=1");
