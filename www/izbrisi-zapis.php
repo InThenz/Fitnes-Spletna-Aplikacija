@@ -1,9 +1,21 @@
 <?php
 session_start();
 
+
 if (!isset($_SESSION["id_uporabnik"])) {
     header("Location: prijava.php");
     exit;
+}
+
+$token = $_POST["csrf_token"] ?? "";
+
+if (
+    !is_string($token) ||
+    !isset($_SESSION["csrf_token"]) ||
+    !hash_equals($_SESSION["csrf_token"], $token)
+) {
+    http_response_code(403);
+    exit("Neveljaven varnostni žeton.");
 }
 
 require_once "db.php";

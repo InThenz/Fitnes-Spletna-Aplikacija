@@ -6,6 +6,17 @@ if (!isset($_SESSION["id_uporabnik"])) {
     exit;
 }
 
+$token = $_POST["csrf_token"] ?? "";
+
+if (
+    !is_string($token) ||
+    !isset($_SESSION["csrf_token"]) ||
+    !hash_equals($_SESSION["csrf_token"], $token)
+) {
+    http_response_code(403);
+    exit("Neveljaven varnostni žeton.");
+}
+
 require_once "db.php";
 
 // Dovolimo samo POST zahtevke

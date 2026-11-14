@@ -7,6 +7,10 @@ if (!isset($_SESSION["id_uporabnik"])) {
     exit;
 }
 
+if (empty($_SESSION["csrf_token"])) {
+    $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+}
+
 require_once "db.php";
 
 
@@ -121,6 +125,10 @@ $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
 
                     <form action="dodaj-vajo.php" method="POST">
 
+                        <input type="hidden"
+                            name="csrf_token"
+                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+
                         <div class="mb-3">
                             <label for="ime_vaje" class="form-label">
                                 Ime vaje
@@ -232,6 +240,9 @@ $grafTeze = array_map(
             <form action="shrani-vajo.php" method="POST">
 
                 <input type="hidden"
+                    name="csrf_token"
+                    value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                <input type="hidden"
                     name="id_vaja"
                     value="<?= (int)$vaja['id_vaja'] ?>">
 
@@ -309,6 +320,10 @@ $grafTeze = array_map(
                                 <form action="uredi-zapis.php" method="POST">
 
                                     <input type="hidden"
+                                        name="csrf_token"
+                                        value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+
+                                    <input type="hidden"
                                         name="id_zapis"
                                         value="<?= (int)$zapis['id_zapis'] ?>">
 
@@ -346,6 +361,10 @@ $grafTeze = array_map(
                             </div>
 
                                 <form action="izbrisi-zapis.php" method="POST">
+
+                                    <input type="hidden"
+                                        name="csrf_token"
+                                        value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                                     <input type="hidden"
                                         name="id_zapis"
                                         value="<?= (int)$zapis['id_zapis'] ?>">
