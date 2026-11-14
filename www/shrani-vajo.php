@@ -2,6 +2,12 @@
 
 session_start();
 
+// Preverimo, ali je uporabnik prijavljen
+if (!isset($_SESSION["id_uporabnik"])) {
+    header("Location: prijava.php");
+    exit;
+}
+
 require_once "db.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -17,8 +23,19 @@ if ($datum === "" || !is_numeric($teza) || $teza < 0) {
 
 $opis = trim($_POST["opis"] ?? "");
 
-$id_uporabnik = 1; // Testni uporabnik - nimam še prijavnega sistema
+$id_uporabnik = (int)$_SESSION["id_uporabnik"];
 $id_vaja = filter_input(INPUT_POST, "id_vaja", FILTER_VALIDATE_INT);
+
+$sqlPreveri = "SELECT id_vaja FROM vaja
+               WHERE id_vaja = ? AND id_uporabnik = ?";
+
+$stmtPreveri = $pdo->prepare($sqlPreveri);
+$stmtPreveri->execute([$id_vaja, $id_uporabnik]);
+
+if (!$stmtPreveri->fetch()) {
+    http_response_code(403);
+    exit("Nimaš dostopa do te vaje.");
+}
 
 if ($id_vaja === false || $id_vaja === null || $id_vaja <= 0) {
     exit("Neveljavna vaja.");

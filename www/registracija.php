@@ -15,11 +15,20 @@
     <h2 class="mb-4">Registracija</h2>
 
 
+
 <?php if (isset($_GET["uspeh"])): ?>
     <div class="alert alert-success">
         Registracija je bila uspešna!
+        Zdaj se lahko prijaviš v svoj račun.
+
+        <div class="mt-3">
+            <a href="prijava.php" class="btn btn-success">
+                Nadaljuj na prijavo
+            </a>
+        </div>
     </div>
 <?php endif; ?>
+
 
 <?php if (($_GET["napaka"] ?? "") === "obstaja"): ?>
     <div class="alert alert-danger">
@@ -61,6 +70,13 @@
         </button>
 
     </form>
+
+    <p class="mt-3">
+        Že imaš račun?
+        <a href="prijava.php" class="btn btn-outline-primary ms-2">
+            Prijavi se
+        </a>
+    </p>
 
 </main>
 

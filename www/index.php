@@ -1,10 +1,25 @@
 <?php
 session_start();
 
+// Preverimo, ali je uporabnik prijavljen
+if (!isset($_SESSION["id_uporabnik"])) {
+    header("Location: prijava.php");
+    exit;
+}
+
 require_once "db.php";
 
 // SELECT vse iz VAJA
-$stmtVaje = $pdo->query("SELECT * FROM vaja ORDER BY ime_vaje");
+$id_uporabnik = (int)$_SESSION["id_uporabnik"];
+
+$stmtVaje = $pdo->prepare(
+    "SELECT * FROM vaja
+     WHERE id_uporabnik = ?
+     ORDER BY ime_vaje"
+);
+
+$stmtVaje->execute([$id_uporabnik]);
+
 $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
@@ -21,8 +36,16 @@ $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
 
-    <header>
-        <h1 class="text-primary text-center mt-4">ZAPISNIK</h1>
+    <header class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="text-primary">ZAPISNIK</h1>
+
+            <form action="odjava.php" method="POST">
+                <button type="submit" class="btn btn-outline-danger">
+                    Odjava
+                </button>
+            </form>
+        </div>
     </header>
 
     <main class="container mt-4">
@@ -139,7 +162,7 @@ $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
             ORDER BY datum DESC, id_zapis DESC"
 );
 
-$stmtZapisi->execute([1, $vaja["id_vaja"]]);
+$stmtZapisi->execute([$id_uporabnik, $vaja["id_vaja"]]);
 $zgodovina = $stmtZapisi->fetchAll(PDO::FETCH_ASSOC);
 $grafZgodovina = array_reverse($zgodovina);
 $grafDatumi = array_column($grafZgodovina, "datum");

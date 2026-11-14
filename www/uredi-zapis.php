@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+if (!isset($_SESSION["id_uporabnik"])) {
+    header("Location: prijava.php");
+    exit;
+}
+
 require_once "db.php";
 
 // Dovolimo samo POST zahtevke
@@ -29,8 +35,7 @@ if (!DateTime::createFromFormat("!Y-m-d", $datum)
     exit("Vnesi veljaven datum in težo.");
 }
 
-// Začasni testni uporabnik
-$id_uporabnik = 1;
+$id_uporabnik = (int)$_SESSION["id_uporabnik"];
 
 // Posodobimo samo izbrani trening
 $sql = "UPDATE zapis_vaje

@@ -1,4 +1,12 @@
 <?php
+session_start();
+
+// Preverimo, ali je uporabnik prijavljen
+if (!isset($_SESSION["id_uporabnik"])) {
+    header("Location: prijava.php");
+    exit;
+}
+
 require_once "db.php";
 
 // POST metoda preveri podatke poslane v obrazcu.
@@ -16,7 +24,7 @@ if ($ime === "" || $skupina === "") {
     exit("Ime vaje in mišična skupina sta obvezna.");
 }
 
-$id_uporabnik = 1;
+$id_uporabnik = (int)$_SESSION["id_uporabnik"];
 
 // INSERT INTO SQL v database
 $sql = "INSERT INTO vaja

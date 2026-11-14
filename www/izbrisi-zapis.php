@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+if (!isset($_SESSION["id_uporabnik"])) {
+    header("Location: prijava.php");
+    exit;
+}
+
 require_once "db.php";
 
 // Brisanje dovolimo samo prek POST zahtevka
@@ -16,8 +22,7 @@ if (!$id_zapis || !$id_vaja) {
     exit("Neveljaven zapis ali vaja.");
 }
 
-// Začasni testni uporabnik
-$id_uporabnik = 1;
+$id_uporabnik = (int)$_SESSION["id_uporabnik"];
 
 // Izbrišemo samo zapis, ki pripada uporabniku in vaji
 $sql = "DELETE FROM zapis_vaje
