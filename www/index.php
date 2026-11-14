@@ -65,6 +65,10 @@ $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
                 <?php endif; ?>
 
                 <form action="odjava.php" method="POST">
+
+                    <input type="hidden"
+                        name="csrf_token"
+                        value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                     <button type="submit" class="btn btn-outline-danger">
                         Odjava
                     </button>

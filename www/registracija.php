@@ -1,3 +1,11 @@
+<?php
+session_start();
+
+if (empty($_SESSION["csrf_token"])) {
+    $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+}
+?>
+
 
 <!DOCTYPE html>
 <html lang="sl">
@@ -38,6 +46,10 @@
 
 
     <form action="shrani-registracijo.php" method="POST">
+
+        <input type="hidden"
+            name="csrf_token"
+            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
         <div class="mb-3">
             <label class="form-label">Uporabniško ime</label>

@@ -6,6 +6,17 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     exit("Neveljavna zahteva.");
 }
 
+$token = $_POST["csrf_token"] ?? "";
+
+if (
+    !is_string($token) ||
+    !isset($_SESSION["csrf_token"]) ||
+    !hash_equals($_SESSION["csrf_token"], $token)
+) {
+    http_response_code(403);
+    exit("Neveljaven varnostni žeton.");
+}
+
 // Izpraznimo podatke uporabnikove seje
 $_SESSION = [];
 
