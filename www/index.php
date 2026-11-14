@@ -9,6 +9,16 @@ if (!isset($_SESSION["id_uporabnik"])) {
 
 require_once "db.php";
 
+
+$stmtAdmin = $pdo->prepare(
+    "SELECT vloga FROM uporabnik WHERE id_uporabnik = ?"
+);
+
+$stmtAdmin->execute([$_SESSION["id_uporabnik"]]);
+
+$jeAdmin = $stmtAdmin->fetchColumn() === "admin";
+
+
 // SELECT vse iz VAJA
 $id_uporabnik = (int)$_SESSION["id_uporabnik"];
 
@@ -36,17 +46,30 @@ $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
 
+        
     <header class="container mt-4">
         <div class="d-flex justify-content-between align-items-center">
+
             <h1 class="text-primary">ZAPISNIK</h1>
 
-            <form action="odjava.php" method="POST">
-                <button type="submit" class="btn btn-outline-danger">
-                    Odjava
-                </button>
-            </form>
+            <div class="d-flex gap-2">
+
+                <?php if ($jeAdmin): ?>
+                    <a href="admin.php" class="btn btn-outline-primary">
+                        Administracija
+                    </a>
+                <?php endif; ?>
+
+                <form action="odjava.php" method="POST">
+                    <button type="submit" class="btn btn-outline-danger">
+                        Odjava
+                    </button>
+                </form>
+
+            </div>
         </div>
     </header>
+
 
     <main class="container mt-4">
         <?php if (!empty($_SESSION["uspesno_shranjeno"])): ?>
