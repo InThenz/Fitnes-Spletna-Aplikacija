@@ -39,13 +39,14 @@ $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
-<html lang="sl">
+<html lang="sl" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitnes zapisnik</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="tema.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -57,6 +58,12 @@ $vaje = $stmtVaje->fetchAll(PDO::FETCH_ASSOC);
             <h1 class="text-primary">ZAPISNIK</h1>
 
             <div class="d-flex gap-2">
+
+            <button type="button"
+                id="gumbTema"
+                class="btn btn-outline-secondary">
+                🌙 Temni način
+            </button>
 
                 <?php if ($jeAdmin): ?>
                     <a href="admin.php" class="btn btn-outline-primary">
@@ -291,105 +298,106 @@ $grafTeze = array_map(
             </p>
 
         <?php else: ?>
-
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Datum</th>
-                        <th>Teža (kg)</th>
-                        <th>Opis</th>
-                        <th>Dejanje</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <?php foreach ($zgodovina as $zapis): ?>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
                         <tr>
-                            <td><?= htmlspecialchars($zapis["datum"]) ?></td>
-                            <td><?= htmlspecialchars($zapis["teza_kg"]) ?> kg</td>
-                            <td><?= htmlspecialchars($zapis["opis"] ?? "") ?></td>
-                            
-                            <td>
-                                
-                            <button type="button"
-                                    class="btn btn-outline-primary btn-sm mb-2"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#uredi<?= (int)$zapis['id_zapis'] ?>">
-                                Uredi
-                            </button>
-
-                            <div class="collapse mt-2 mb-3"
-                                id="uredi<?= (int)$zapis['id_zapis'] ?>">
-
-                                <form action="uredi-zapis.php" method="POST">
-
-                                    <input type="hidden"
-                                        name="csrf_token"
-                                        value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-
-                                    <input type="hidden"
-                                        name="id_zapis"
-                                        value="<?= (int)$zapis['id_zapis'] ?>">
-
-                                    <input type="hidden"
-                                        name="id_vaja"
-                                        value="<?= (int)$vaja['id_vaja'] ?>">
-
-                                    <label class="form-label">Datum</label>
-                                    <input type="date"
-                                        name="datum"
-                                        class="form-control mb-2"
-                                        value="<?= htmlspecialchars($zapis['datum']) ?>"
-                                        required>
-
-                                    <label class="form-label">Teža (kg)</label>
-                                    <input type="number"
-                                        name="teza"
-                                        class="form-control mb-2"
-                                        min="0"
-                                        step="0.5"
-                                        value="<?= htmlspecialchars($zapis['teza_kg']) ?>"
-                                        required>
-
-                                    <label class="form-label">Opis</label>
-                                    <textarea name="opis"
-                                            class="form-control mb-2"
-                                            rows="2"><?= htmlspecialchars($zapis['opis'] ?? '') ?></textarea>
-
-                                    <button type="submit" class="btn btn-success btn-sm">
-                                        Shrani spremembe
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                                <form action="izbrisi-zapis.php" method="POST">
-
-                                    <input type="hidden"
-                                        name="csrf_token"
-                                        value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                    <input type="hidden"
-                                        name="id_zapis"
-                                        value="<?= (int)$zapis['id_zapis'] ?>">
-
-                                    <input type="hidden"
-                                        name="id_vaja"
-                                        value="<?= (int)$vaja['id_vaja'] ?>">
-
-                    <!-- Funkcija return vsebuje vso kodo, da te še enkrat vpraša če želiš potrditi kar počneš. -->
-                                    <button type="submit"
-                                            class="btn btn-danger btn-sm"
-                                            onclick="return confirm('Ali res želiš izbrisati ta trening?');">
-                                        Izbriši
-                                    </button>
-                                </form>
-                            </td>
-
+                            <th>Datum</th>
+                            <th>Teža (kg)</th>
+                            <th>Opis</th>
+                            <th>Dejanje</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+
+                    <tbody>
+                        <?php foreach ($zgodovina as $zapis): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($zapis["datum"]) ?></td>
+                                <td><?= htmlspecialchars($zapis["teza_kg"]) ?> kg</td>
+                                <td><?= htmlspecialchars($zapis["opis"] ?? "") ?></td>
+                                
+                                <td>
+                                    
+                                <button type="button"
+                                        class="btn btn-outline-primary btn-sm mb-2"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#uredi<?= (int)$zapis['id_zapis'] ?>">
+                                    Uredi
+                                </button>
+
+                                <div class="collapse mt-2 mb-3"
+                                    id="uredi<?= (int)$zapis['id_zapis'] ?>">
+
+                                    <form action="uredi-zapis.php" method="POST">
+
+                                        <input type="hidden"
+                                            name="csrf_token"
+                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+
+                                        <input type="hidden"
+                                            name="id_zapis"
+                                            value="<?= (int)$zapis['id_zapis'] ?>">
+
+                                        <input type="hidden"
+                                            name="id_vaja"
+                                            value="<?= (int)$vaja['id_vaja'] ?>">
+
+                                        <label class="form-label">Datum</label>
+                                        <input type="date"
+                                            name="datum"
+                                            class="form-control mb-2"
+                                            value="<?= htmlspecialchars($zapis['datum']) ?>"
+                                            required>
+
+                                        <label class="form-label">Teža (kg)</label>
+                                        <input type="number"
+                                            name="teza"
+                                            class="form-control mb-2"
+                                            min="0"
+                                            step="0.5"
+                                            value="<?= htmlspecialchars($zapis['teza_kg']) ?>"
+                                            required>
+
+                                        <label class="form-label">Opis</label>
+                                        <textarea name="opis"
+                                                class="form-control mb-2"
+                                                rows="2"><?= htmlspecialchars($zapis['opis'] ?? '') ?></textarea>
+
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            Shrani spremembe
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                                    <form action="izbrisi-zapis.php" method="POST">
+
+                                        <input type="hidden"
+                                            name="csrf_token"
+                                            value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden"
+                                            name="id_zapis"
+                                            value="<?= (int)$zapis['id_zapis'] ?>">
+
+                                        <input type="hidden"
+                                            name="id_vaja"
+                                            value="<?= (int)$vaja['id_vaja'] ?>">
+
+                        <!-- Funkcija return vsebuje vso kodo, da te še enkrat vpraša če želiš potrditi kar počneš. -->
+                                        <button type="submit"
+                                                class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Ali res želiš izbrisati ta trening?');">
+                                            Izbriši
+                                        </button>
+                                    </form>
+                                </td>
+
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
 
         <?php endif; ?>
 
@@ -448,7 +456,6 @@ $grafTeze = array_map(
 
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
 
 </body>
 </html>
